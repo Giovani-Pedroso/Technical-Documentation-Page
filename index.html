@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script defer src="theme.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link
+    href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap"
+    rel="stylesheet"
+    />
+  <title>Technical Documentation Page</title>
+</head>
+
+<body>
+  <nav id="navbar">
+    <header  class="logo">
+      <p class="topic" id="seta"> ></p>
+      <p class="link-text">Blue-pill</p>     
+    </header>
+    
+    <ul class="navbar-nav">
+      
+
+      <li class="nav-item">
+        <div class="nav-link-div">
+          <p class="topic"> 1</p>
+          <a href="#Blue_Pill_a_new_Begining"       
+             class = "nav-link">
+          Blue Pill a new Begining
+        </a>
+        </div>
+        
+         
+        
+      </li>
+
+      <li class="nav-item">
+        <div class="nav-link-div">
+          <p class="topic"> 2</p>
+          <a href="#Circuit_of_the_develop_board"       
+             class = "nav-link">
+          Circuit of the develop board
+        </a>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <div class="nav-link-div">
+          <p class="topic"> 3</p>
+          <a href="#Topics_that_will_be_cover"      
+             class = "nav-link">
+          Topics that will be cover
+        </a>
+        </div>
+      </li>
+
+      <li class="nav-item">
+        <div class="nav-link-div">
+          <p class="topic"> 4</p>
+          <a href="#Hello_word_blink"       
+             class = "nav-link">
+          Hello word blink
+        </a>
+        </div>
+      </li>
+
+      <li class="nav-item" id="themeButton">
+        <div class="nav-link-div">
+          <p class="topic"> 5</p>
+          <a href="#Input_Button"       
+             class = "nav-link">
+          Input Button
+        </a>
+        </div>
+      </li>
+      <li class="nav-item" id="themeButton">
+        <div class="nav-link-div">
+          <p class="topic"> 6</p>
+          <a href="#Systick_and_Clock_Config"       
+             class = "nav-link">
+          Systick and Clock Config
+        </a>
+        </div>
+      </li>
+      <li class="nav-item" id="themeButton">
+        <div class="nav-link-div">
+          <p class="topic"> 7</p>
+          <a href="#Usart"       
+             class = "nav-link">
+          Usart
+        </a>
+        </div>
+      </li>
+      <li class="nav-item" id="themeButton">
+        <div class="nav-link-div">
+          <p class="topic"> 8</p>
+          <a href="#Interruptions"       
+             class = "nav-link">
+          Interruptions
+        </a>
+        </div>
+      </li>
+    </ul>
+  </nav>
+  
+  <main id="main-doc">
+   
+    <section  class="main-section" id="Blue_Pill_a_new_Begining">
+      <header>Blue Pill a new Begining</header>
+      <p>Learning new stuffs are fun and sometimes can be a challenged mainly when you are learning by yourself. The mainly purpose of this repository is be a journal of my progress learning how to program the STM32F103C8 a.k.a Blue pill in bare metal, if you somehow you fond this repository and want to see my codes I must advertise you that this isn't a finished projec so something will change.</p>
+     
+    </section>
+    <hr>
+    
+    <section class="main-section" id="Circuit_of_the_develop_board">
+      <header>Circuit of the develop board</header>
+      <p>This is the "board" I am using to study the Blue Pill, I used quotes because in the reality I am using Breadboard, this board feature a 7 segments display (to study the gpio configurations, PWM), a giroscopy and SSD1306 Oled Display to study the I2C protocol, a Bluetooth module for Uart, a push button for interruptions and finale a potentiometer for ADC, a module for study the spi will be added in the future.</p>
+    <img src="https://i.imgur.com/nZim1mo.png">
+    </section>
+    <hr>
+    
+    <section class="main-section" id="Topics_that_will_be_cover">
+      <header>Topics that will be cover</header>
+      <ol>
+        <li>Hello word blink</li>
+        <li>Input Button</li>
+        <li>Systick and Clock Config</li>
+        <li>Usart</li>
+        <li>Interruption</li>
+        <li>Creation of libraries</li>
+        <li>Timers</li>
+        <li>Interruption</li>
+        
+      </ol>
+    </section>
+    <hr>
+    
+    <section class="main-section" id="Hello_word_blink">
+      <header>Hello word blink</header>
+      <p>
+        Every new journey have a humble beginnin, Here is not different so the first code is nothing fancy or complex, this code just make a led blink using a pseudo delay function, for this will be use the build-in led of the blue pill it is localted in the pin PC13.
+      </p>
+      <pre>
+        <p>The code made by GiovaniSFPV</p>
+        <code>
+#include "stm32f1xx.h"
+
+//hello
+
+//pseudo delay not much precise
+void delay_ms(uint16_t t);
+
+int main(){
+
+  //Activate the clock for the port c
+  RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;
+
+  //Inicialize the PC13 as output 10Mhz
+  GPIOC->CRH |=    (GPIO_CRH_CNF13_0|GPIO_CRH_MODE13_0);
+  GPIOC->CRH &=   ~(GPIO_CRH_CNF13_1|GPIO_CRH_MODE13_1);
+
+  //Turn off the in-board led
+  GPIOC->ODR |=    (GPIO_ODR_ODR13);
+  
+  while(1){
+
+    delay_ms(100);
+    GPIOC->ODR ^= (GPIO_ODR_ODR13);
+
+  }
+
+  return 0;
+
+}
+
+
+//not much precise but still functional delay function
+void delay_ms(uint16_t t) {
+
+   volatile unsigned long l = 0; 
+
+   for(uint16_t i = 0; i < t; i++) {
+   for(l = 0; l < 6000; l++) { }} 
+   }
+        </code>
+      </pre>
+      
+    <a href="https://github.com/Giovani-Pedroso/Blue-Pill-a-new-Begining/tree/main/1-Hello-Word">GitHub</a>
+    </section>
+    <hr>
+    <section class="main-section" id="Input_Button">
+    <header>Input Button</header>
+      <p>
+        A microcontroller that can't interact with the external world is so useful as a shine rock, but we still in the beginning so complex communications as I2C and SPI are out of question for today a simple button that turn on/of the build in led are more that enough.
+      </p>
+      <pre>
+      <p>The code made by GiovaniSFPV</p>
+        <code>
+#include <stm32f100xb.h>
+
+
+//Function to config the I/0s
+void Gpio_config();
+
+//Pseudo delay Function
+void delay_ms(uint16_t t);
+
+
+int main(){
+
+    Gpio_config();
+
+    //Super Loop
+    while(1){
+
+        //check if the button was presed
+        if(!(GPIOB->IDR & GPIO_IDR_IDR1)){
+            
+            //Toggle the button
+            GPIOC->ODR ^= GPIO_ODR_ODR13;
+            delay_ms(100);
+
+        }
+
+    }
+
+    return 0;
+}
+
+void Gpio_config(){
+
+    //Activate the clockS of the port c and prot b
+    RCC->APB2ENR |= RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPBEN;
+
+    //Inicialize the PC13 as output 10Mhz
+    GPIOC->CRH |=    (GPIO_CRH_CNF13_0|GPIO_CRH_MODE13_0);
+    GPIOC->CRH &=   ~(GPIO_CRH_CNF13_1|GPIO_CRH_MODE13_1);
+
+    //Turn off the in-board led
+    GPIOC->ODR |=    (GPIO_ODR_ODR13);
+
+    //Inicialize the Pb1 as input with pull-up resistor
+    GPIOB->CRL &=   ~(GPIO_CRL_MODE1_1|GPIO_CRL_MODE1_0|
+    GPIO_CRL_CNF1_0);   
+    GPIOB->CRL |=    (GPIO_CRL_CNF1_1);
+    GPIOB->ODR |=    (GPIO_ODR_ODR1);
+
+}
+
+//not much precise but still a functional delay function
+void delay_ms(uint16_t t) {
+
+   volatile unsigned long l = 0; 
+
+   for(uint16_t i = 0; i < t; i++) for(l = 0; l < 6000; l++) { } 
+   }
+        </code>
+      </pre>
+      
+    <a href="https://github.com/Giovani-Pedroso/Blue-Pill-a-new-Begining/tree/main/2-Input-Button">GitHub</a>
+    </section>
+    <hr>
+      
+    <section class="main-section" id="Systick_and_Clock_Config">
+    <header>Systick and Clock Config</header>
+      <p>
+        So far we have been using the uC's internal RC clock (microcontroller), this clock can be very useful as it does not require any external components and it doesn't need any configuration to make the uC work, but it isn't prefect it can cause some problems because it lack of presision, so when we need to use the usart and USB it is necesary use a extrenal clock in this code we will config the clock and use the systick(a very simple type of timer) to blink a led.
+
+Map of the register I always have difficult to found it<br>
+
+      <p>SysTick->CTRL</p>
+      <table>
+        <tr id="bits">
+          <td>Bits 31-18</td>
+          <td>Bit 17</td>
+          <td>Bits 16-3</td>
+          <td>Bit 2</td>
+          <td>Bit 1</td>
+          <td>Bit 0</td>
+        </tr>
+        <tr >
+          <td>Reserveted</td>
+          <td>Count Flag</td>
+          <td>Reserveted</td>
+          <td>CLK Source</td>
+          <td>Tick interruption</td>
+          <td>Enable SysTick</td>
+        </tr>
+        
+        <tr>
+          <td>Nothing</td>
+          <td>High when count ends</td>
+          <td>Nothing</td>
+          <td>1 - SysClock as Sourc 0 - Sysclok/8 as sourc</td>
+          <td>1 - Enable interruptions - 0 Disable</td>
+          <td>1 - Turn of the SysTick 0 -Turn off</td>
+        </tr>
+      </table>
+
+      </p>
+      <pre>
+        <p>The code made by GiovaniSFPV</p>
+        <code>
+#include "stm32f1xx.h"
+
+int main(void){
+
+    ClockConfig();
+    SysTickConfig();
+    GpioConfig();
+
+    while(1){
+
+    }
+
+}
+
+void ClockConfig(){
+ 
+    //Activate the HSE
+    RCC->CR |= RCC_CR_HSEON;
+    //Wait HSE be ready
+    while(!(RCC->CR & RCC_CR_HSERDY));
+
+    //Config Mem
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
+    FLASH->ACR &= ~(FLASH_ACR_LATENCY);
+    FLASH->ACR |= (uint32_t) 0x2;
+
+    //divide the HSE by 1
+    RCC->CFGR &= ~(RCC_CFGR_PLLXTPRE);
+
+    //Soucer of the PLL - HSE
+    RCC->CFGR |= RCC_CFGR_PLLSRC;
+
+    //PLL mult 9
+    RCC->CFGR |= RCC_CFGR_PLLMULL9;
+
+    //AHB Prescaler 1
+    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+
+    //APB2 div by 1
+    RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
+
+    //APB1 div by 2
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+
+    //PLL source HSE
+    RCC->CFGR |= RCC_CFGR_PLLSRC;
+
+    //Activate the PLL
+    RCC->CR |= RCC_CR_PLLON;
+    //Wait the PLL be ready
+    while(!(RCC->CR & RCC_CR_PLLRDY));
+
+    //Set the pll as the clock system
+    RCC->CFGR &= ~(RCC_CFGR_SW);
+    //reste just in case
+    RCC->CFGR |= RCC_CFGR_SW_PLL;
+
+    //Wait untill the selection be done
+    while(!(RCC->CFGR & RCC_CFGR_SWS_PLL));
+
+}
+
+void SysTickConfig(){
+
+    //Enable SysTick | Enable ISR
+    SysTick->CTRL |= (SysTick_CTRL_ENABLE_Msk 
+    | SysTick_CTRL_TICKINT_Msk);
+
+    //System Clock div by 8
+    SysTick->CTRL &= ~(SysTick_CTRL_CLKSOURCE_Msk);
+
+    //t = Load/(STMfrequency/clk source) 
+    -> 9000000 / (72000000/8) -> 
+    9000000/9000000 = 1 second
+    SysTick->LOAD = 9000000-1;
+
+}
+
+void GpioConfig(){
+
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+
+    //PA8 as Output push-pull 2Mhz
+    GPIOA->CRH |=  (GPIO_CRH_MODE8_1);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE8_0 | 
+    GPIO_CRH_CNF8_0 | GPIO_CRH_CNF8_1);
+
+    //PA9 as Output push-pull 2Mhz
+    GPIOA->CRH |=  (GPIO_CRH_MODE9_1);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE9_0
+    | GPIO_CRH_CNF9_0 | GPIO_CRH_CNF9_1);
+
+    //PA10 as Output push-pull 2Mhz
+    GPIOA->CRH |=  (GPIO_CRH_MODE10_1);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE10_0
+    | GPIO_CRH_CNF10_0 | GPIO_CRH_CNF10_1);
+
+}
+
+//this function is called whet the systick reach 0
+void SysTick_Handler(){
+
+    GPIOA->ODR ^= GPIO_ODR_ODR8 | GPIO_ODR_ODR9 
+    | GPIO_ODR_ODR10;
+
+}
+        </code>
+      </pre>
+      
+    <a href="https://github.com/Giovani-Pedroso/Blue-Pill-a-new-Begining/tree/main/3-Systick-and-Clock-Config">GitHub</a>
+    </section>
+    <hr>
+    
+    <section id="Usart"class="main-section">
+    <header>Usart</header>
+      <p>
+        Buttons are cool but they are limited, for a more complex communication is always good use a usart in my case I am using a bluetooth module
+
+      </p>
+      <pre>
+        <p>The code made by GiovaniSFPV</p>
+        <code>
+#include "stm32f1xx.h"
+
+#define FREQ_HSE 72000000
+#define BAUND_USART2 9600
+
+#define BRR_VALUE_USART2 FREQ_HSE/2/BAUND_USART2
+
+//Configs Funcs
+void ClockConfig();
+void SysTickConfig();
+void GpioConfig();
+void UsartConfig();
+
+//Usart2 Funcs
+void SendStringUsart2(unsigned char* String);
+void SendCharUsart2(unsigned char letter);
+
+int main(void){
+
+    ClockConfig();
+    SysTickConfig();
+    GpioConfig();
+    UsartConfig();
+
+    while(1){
+
+    }
+
+}
+
+void ClockConfig(){
+ 
+    //Activate the HSE
+    RCC->CR |= RCC_CR_HSEON;
+    //Wait HSE be ready
+    while(!(RCC->CR & RCC_CR_HSERDY));
+
+    //Config Mem
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
+    FLASH->ACR &= ~(FLASH_ACR_LATENCY);
+    FLASH->ACR |= (uint32_t) 0x2;
+
+    //divide the HSE by 1
+    RCC->CFGR &= ~(RCC_CFGR_PLLXTPRE);
+
+    //Soucer of the PLL - HSE
+    RCC->CFGR |= RCC_CFGR_PLLSRC;
+
+    //PLL mult 9
+    RCC->CFGR |= RCC_CFGR_PLLMULL9;
+
+    //AHB Prescaler 1
+    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+
+    //APB2 div by 1
+    RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
+
+    //APB1 div by 2
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+
+    //PLL source HSE
+    RCC->CFGR |= RCC_CFGR_PLLSRC;
+
+    //Activate the PLL
+    RCC->CR |= RCC_CR_PLLON;
+    //Wait the PLL be ready
+    while(!(RCC->CR & RCC_CR_PLLRDY));
+
+    //Set the pll as the clock system
+    RCC->CFGR &= ~(RCC_CFGR_SW);//reste just in case
+    RCC->CFGR |= RCC_CFGR_SW_PLL;
+
+    //Wait untill the selection be done
+    while(!(RCC->CFGR & RCC_CFGR_SWS_PLL));
+
+}
+
+void SysTickConfig(){
+
+    //Enable SysTick | Enable ISR
+    SysTick->CTRL |= (SysTick_CTRL_ENABLE_Msk 
+    | SysTick_CTRL_TICKINT_Msk);
+
+    //System Clock div by 8
+    SysTick->CTRL &= ~(SysTick_CTRL_CLKSOURCE_Msk);
+
+    SysTick->LOAD = 9000000-1;
+
+}
+
+void GpioConfig(){
+
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+
+    //PA8 as Output push-pull 2Mhz
+    GPIOA->CRH |=  (GPIO_CRH_MODE8_1);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE8_0 |
+    GPIO_CRH_CNF8_0 | GPIO_CRH_CNF8_1);
+
+    //PA9 as Output push-pull 2Mhz
+    GPIOA->CRH |=  (GPIO_CRH_MODE9_1);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE9_0 | 
+    GPIO_CRH_CNF9_0 | GPIO_CRH_CNF9_1);
+
+    //PA10 as Output push-pull 2Mhz
+    GPIOA->CRH |=  (GPIO_CRH_MODE10_1);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE10_0 |
+    GPIO_CRH_CNF10_0 | GPIO_CRH_CNF10_1);
+
+}
+
+
+void SysTick_Handler(){
+
+    GPIOA->ODR ^= GPIO_ODR_ODR8 | GPIO_ODR_ODR9 | 
+    GPIO_ODR_ODR10;
+
+    SendCharUsart2('O');
+    SendCharUsart2('L');
+    SendCharUsart2('A');
+    SendCharUsart2('R');
+    SendCharUsart2('\n');
+
+    SendStringUsart2("caranba batma \n");
+
+    SendCharUsart2('\n');
+}
+
+void SendCharUsart2(unsigned char letter){
+
+    USART2->DR = letter;
+
+    while(!(USART2->SR & USART_SR_TC));
+
+    USART2->SR &= USART_SR_TC;
+
+}
+
+
+void SendStringUsart2(unsigned char* string){
+
+    for(int i=0; string[i]!='\0' ; i++){
+
+        SendCharUsart2(string[i]);
+
+    }
+
+}
+        </code>
+      </pre>
+      
+    <a href="https://github.com/Giovani-Pedroso/Blue-Pill-a-new-Begining/tree/main/4-Usart">GitHub</a>
+    </section>
+    <hr>
+    
+    <section class="main-section" id="Interruptions">
+    <header>Interruptions</header>
+      <p>
+        The Simplest way to explain what is a interruption is, imagine that you need to wark at 8 a.m, there ar two ways to do not be late one is constant look to the clock, this can revolve the problem but you can't sleep, interruptions are you seting a alarm on the clock
+
+      </p>
+      <pre>
+        <p>The code made by GiovaniSFPV</p>
+        <code>
+#include "stm32f1xx.h"
+
+#define BAUND_RATE 9600
+#define BRR_VALUE 72000000/BAUND_RATE 
+
+//Set up functions
+void    ClockConfig();
+void    GpioConfig();
+void    Timer2Config();
+void    SysTickConfig();
+void    EXIT_ISR_Config();
+void    UsartConfig();
+
+//ISR functions
+void    SysTick_Handler();
+void    EXTI1_IRQHandler();
+void    USART2_IRQHandler();
+void    TIM2_IRQHandler();
+
+int main(void){
+
+    //disable all interuption Globally, it is 
+    //recomentable 
+    //whent we are configurating the STM
+    __disable_irq();
+
+    //UsartConfig();
+    GpioConfig();
+    ClockConfig();
+    //Timer2Config();
+    //SysTickConfig();
+    EXIT_ISR_Config();
+
+    //Enable interrupt globally
+    __enable_irq(); 
+
+    while(1){
+    }
+
+
+}
+
+
+//#################################################
+//#########################################
+
+//                                      CONFIGS
+
+//#################################################
+//#########################################
+
+void ClockConfig(){
+
+//1° step activate the HSE and wait untill be ready
+
+    //Enable the extrenal clock aka cystral
+    RCC->CR |= RCC_CR_HSEON;
+
+    //Wait untill the HSE be ready
+    while(!(RCC->CR & RCC_CR_HSERDY));
+
+//2° step config the flash mem
+
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
+
+    FLASH->ACR &= ~(FLASH_ACR_LATENCY);
+    FLASH->ACR |= (uint32_t) 0x2;
+
+//3° comfigure the pll
+
+    //reset some values of the register to make easy 
+    //the configuration
+    RCC->CFGR &= ~(RCC_CFGR_PLLSRC
+    |RCC_CFGR_PLLMULL|RCC_CFGR_PLLXTPRE);
+
+    //divide the HSE by 1
+    RCC->CFGR &= ~(RCC_CFGR_PLLXTPRE);//if set the 
+    //HSE would be div by 2
+
+    //Soucer of the PLL - HSE
+    RCC->CFGR |= RCC_CFGR_PLLSRC;
+    // if reset source = HSI
+
+    //PLL multiplier
+    RCC->CFGR |= RCC_CFGR_PLLMULL9;
+
+    //AHB Prescaler 1
+    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+
+    //APB1 Prescaler 2 the max speed of this bus is 
+    //36 Mhz
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+
+    //APB2 Prescaler 1
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV1;
+
+    //Turn on the pll
+    RCC->CR |= RCC_CR_PLLON;
+
+    //WAIT UNTILL THE PLL BE READY
+    while(!(RCC->CR & RCC_CR_PLLRDY));
+
+    //Set the pll as the clock system
+    RCC->CFGR &= ~(RCC_CFGR_SW);//reste just in case
+    RCC->CFGR |= RCC_CFGR_SW_PLL;
+
+    //Wait untill the selection be done
+    while(!(RCC->CFGR & RCC_CFGR_SWS_PLL));
+}
+
+void GpioConfig(){
+
+
+    //Activate the clock for the PortA
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
+
+    //PA10 as slow output - blue
+    GPIOA->CRH |=  (GPIO_CRH_MODE10_0);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE10_1
+    |GPIO_CRH_CNF10_0|GPIO_CRH_CNF10_1);
+
+    //PA9 as slow output - red
+    GPIOA->CRH |=  (GPIO_CRH_MODE9_0);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE9_1
+    |GPIO_CRH_CNF9_0|GPIO_CRH_CNF9_1);
+
+    //PA8 as slow output - green
+    GPIOA->CRH |=  (GPIO_CRH_MODE8_0);
+    GPIOA->CRH &= ~(GPIO_CRH_MODE8_1|
+    GPIO_CRH_CNF8_0|GPIO_CRH_CNF8_1);
+
+
+    //Activate the clock for the PortB
+    RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
+
+    //Inicialize the Pb1 as input with pull-up 
+    //resistor
+    GPIOB->CRL &=   ~(GPIO_CRL_MODE1_1|
+    GPIO_CRL_MODE1_0|GPIO_CRL_CNF1_0);   
+    GPIOB->CRL |=    (GPIO_CRL_CNF1_1);
+    GPIOB->ODR |=    (GPIO_ODR_ODR1);
+    /*
+    GPIOB->CRL &=   ~(GPIO_CRL_MODE1_1
+    |GPIO_CRL_MODE1_0|GPIO_CRL_CNF1_0);   
+    GPIOB->CRL |=    (GPIO_CRL_CNF1_1);
+    GPIOB->ODR |=    (GPIO_ODR_ODR1);*/
+
+
+}
+
+void Timer2Config(){
+
+    // The prescaler for the APB1 is 2 this mean the 
+    //max speed is 32Mhz
+    RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+
+    TIM2->PSC = 3600-1; 
+    TIM2->ARR = 10000-1;
+
+    TIM2->SR = 0;  
+    TIM2->CR1 = 1; 
+
+    //enable UIE interrupt
+    TIM2->DIER = (1<<0); 
+    NVIC_EnableIRQ(TIM2_IRQn); 
+
+    //Set the priority of a ISR don't think use the 
+    //registres it is a 
+    //pain in the ass
+    NVIC_SetPriority (TIM2_IRQn, 2);  
+ 
+
+
+
+
+}
+
+void SysTickConfig(){
+
+    SysTick->CTRL |= (SysTick_CTRL_ENABLE_Msk
+    |SysTick_CTRL_TICKINT_Msk);
+    SysTick->CTRL &= ~(SysTick_CTRL_CLKSOURCE_Msk);
+    SysTick->LOAD = 9000000-1;
+
+}
+
+void UsartConfig(){
+
+    //Enabel the clock for the usart2
+    RCC->APB1ENR |= RCC_APB1ENR_USART2EN;
+
+    //Config the usart
+    //Usart Eneble| Transmitter Eneble| Reciver 
+    //Eneble
+    USART2->CR1 |= (USART_CR1_UE|
+    USART_CR1_TE|USART_CR1_RE);
+
+    //eneble the interruptions while transmiting and 
+    //reciving
+    USART2->CR1 |= (USART_CR1_TXEIE|
+    USART_CR1_RXNEIE);
+    NVIC_EnableIRQ(USART2_IRQn);
+   
+    //USART2->CR1 =0x2024;
+
+   //set the baund rate to 9600
+    //Must be div by two because the frequenci of 
+    //the apb2 is the half of the
+    //system clock
+    USART2->BRR = BRR_VALUE/2;
+
+    //PA3(RX2) as input pul up necesari to use the 
+    //Usart
+    GPIOA->CRL |=  (GPIO_CRL_CNF3_1
+    |GPIO_CRL_MODE3_0);
+    GPIOA->CRL &= ~(GPIO_CRL_CNF3_0
+    |GPIO_CRL_MODE3_1);
+    GPIOA->ODR |=  (GPIO_ODR_ODR3);
+
+    //PA2(TX2) as output alt function push-pull 
+    //necesari to use the Usart
+    GPIOA->CRL |=  (GPIO_CRL_CNF2_1
+    |GPIO_CRL_MODE2_1|GPIO_CRL_MODE2_0); 
+  
+  GPIOA->CRL &= ~(GPIO_CRL_CNF2_0); 
+     
+}
+
+
+//**************************************************
+//****************************************
+
+//                                       ISR                        
+
+//**************************************************
+//****************************************
+
+
+//The systick ISR belong to a special kind of ISR 
+//the system 
+//interuptions this interuptions can't be disable so 
+//aren't 
+//the necessite to activete them
+void SysTick_Handler(){
+
+    GPIOA->ODR ^= (GPIO_ODR_ODR9);
+
+}
+
+void USART2_IRQHandler()  {
+
+    uint8_t c = USART2->DR; /* get received data */ 
+    
+    if((c == 'r')||(c == 'R')) {
+        GPIOA->ODR |= (1<<9); 
+        GPIOA->ODR &= ~(1<<8); 
+        GPIOA->ODR &= ~(1<<10); 
+
+
+    } 
+    else  if((c == 'G')||(c == 'g')) {
+        
+        GPIOA->ODR &= ~(1<<9); 
+        GPIOA->ODR |= (1<<8); 
+        GPIOA->ODR &= ~(1<<10); 
+
+    }
+
+    else  if((c == 'b')||(c == 'B')) {
+        
+        GPIOA->ODR &= ~(1<<9); 
+        GPIOA->ODR &= ~(1<<8); 
+        GPIOA->ODR |= (1<<10); 
+
+    }
+
+    else{
+        GPIOA->ODR &= ~(1<<9); 
+        GPIOA->ODR &= ~(1<<8); 
+        GPIOA->ODR &= ~(1<<10);
+    }
+    
+} 
+ 
+void TIM2_IRQHandler()  {  
+    //clear UIF flag
+    TIM2->SR = 0; 
+    GPIOA->ODR ^= (1<<9); 
+} 
+
+void EXTI1_IRQHandler(){
+
+    //Clear the pending flag this flag is set
+    //whent the interuption hapening
+    EXTI->PR |= (1<<1);
+    GPIOA->ODR ^=(GPIO_ODR_ODR10);
+    
+}
+
+//this function is not work back here tomorow
+void EXIT_ISR_Config(){
+
+    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+
+    //NVIC->ISER[0] |= (1<<7);
+    //activete the EXIT ISR
+     
+    //THIS FUNCTION also can be use to the config
+    NVIC_EnableIRQ(EXTI1_IRQn);
+
+    //to disable the ISR:
+
+    //NVIC->ICER[0] = (1<<7);  
+    //OR
+    //NVIC_DisableIRQ(EXTI1_IRQn);   
+
+    //the extrenal interuptions are multiplexed
+    //the EXTI1 are shared by the pins PA1, PB1, PC1 
+    //... PG1
+    //here we select the pb1
+    AFIO->EXTICR[0] = (1<<4);
+ 
+    //activate in the falling edge
+    EXTI->FTSR |= EXTI_FTSR_TR1;
+
+    //eneble the EXTI1
+    EXTI->IMR |= EXTI_IMR_MR1;
+
+    EXTI->PR |= (EXTI_PR_PIF1);
+
+}
+        </code>
+      </pre>
+      
+    <a href="https://github.com/Giovani-Pedroso/Blue-Pill-a-new-Begining/tree/main/4-Usart">GitHub</a>
+    </section>
+    <hr>
+    
+  </main>
+</body>
